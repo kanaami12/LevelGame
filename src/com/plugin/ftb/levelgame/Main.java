@@ -11,7 +11,8 @@ public class Main extends JavaPlugin{
 		plugin = this;
 		
 		MainScoreboard.registerScoreboard();
-		MainScoreboard.startTimer();
+		MainScoreboard.startTimerTask();
+		MainScoreboard.startScoreTask(1);
 	}
 }
 

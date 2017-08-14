@@ -1,5 +1,6 @@
 package com.plugin.ftb.levelgame;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,7 +21,7 @@ public class MainScoreboard {
 	
 	public static Main plugin = Main.plugin;
 	
-	public static int min = 50;
+	public static int min = 1;
 	public static int sec = 0; 
 	
 	//ゲーム中=true, ゲーム外=false
@@ -28,24 +29,26 @@ public class MainScoreboard {
 	
 	//スコアボードを登録
 	public static void registerScoreboard() {
-		Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-		
-		Objective object = board.getObjective("Level Game");
-		if(object != null) {
-			object.unregister();
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+			Objective object = board.getObjective("Level Game");
+			if(object != null) {
+				object.unregister();
+			}
+			//新規オブジェクトを登録
+			object = board.registerNewObjective("Level Game", "dummy");
+			
+			//オブジェクトの表示名を設定
+			object.setDisplayName("" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "≫  Level Game ≪");
+			
+			//オブジェクトの表示位置を設定
+			object.setDisplaySlot(DisplaySlot.SIDEBAR);	
+			
+			//オブジェクトの登録
+			String zero = sec < 10 ? "0" : "";
+			object.getScore("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec)).setScore(-1);
+			player.setScoreboard(board);
 		}
-		//新規オブジェクトを登録
-		object = board.registerNewObjective("Level Game", "dummy");
-		
-		//オブジェクトの表示名を設定
-		object.setDisplayName("" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "≫  Level Game ≪");
-		
-		//オブジェクトの表示位置を設定
-		object.setDisplaySlot(DisplaySlot.SIDEBAR);	
-		
-		//オブジェクトの登録
-		String zero = sec < 10 ? "0" : "";
-		object.getScore("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec)).setScore(-1);
 	}
 	
 	//タイマーを開始
@@ -55,6 +58,8 @@ public class MainScoreboard {
            public void run() {
 	           	if(sec == 0 && min == 0) {
 	           		//タイマーが0:00の場合終了する
+	           		updateScore();
+	           		showScores();
 	           		isPlaying = false;
 	           		this.cancel();
 	           	}else {
@@ -62,7 +67,7 @@ public class MainScoreboard {
 	           		updateTime();
 	           	}
            }
-       }.runTaskTimer(plugin, 20, 20);
+       }.runTaskTimer(plugin, 20, 1);
 	}
 	
 	//スコアタスクを開始
@@ -79,41 +84,77 @@ public class MainScoreboard {
 	
 	//タイマーを更新
 	private static void updateTime() {
-		Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-		Objective object = board.getObjective("Level Game");
-		
-		String zero = sec < 10 ? "0" : "";
-		board.resetScores("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec));
-		
+		int pastSec = sec;
+		int pastMin = min;
 		sec = sec == 0  ? 59 : sec-1;
 		min = sec == 59 ? min-1 : min;
 		
-		zero = sec < 10 ? "0" : "";
-		object.getScore("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec)).setScore(-1);
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			Scoreboard board = player.getScoreboard();
+			Objective object = board.getObjective("Level Game");
+			
+			//前回のスコアを削除
+			String zero = pastSec < 10 ? "0" : "";
+			board.resetScores("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", pastMin, pastSec));
+			
+			//新しいスコアを登録
+			zero = sec < 10 ? "0" : "";
+			object.getScore("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec)).setScore(-1);
+			player.setScoreboard(board);
+		}
 	}
 	
 	//スコアを更新
-	private static void updateScore() {
-		Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-		Objective object = board.getObjective("Level Game");
-
+	private static void updateScore() {	
 		//過去のtopList
-		List<Map.Entry<String,Integer>> pastTopList = MainUtils.topList;
+		HashMap<String, Integer> pastTopList = MainUtils.topList;
 		
 		//経験値を取得し、ソートする
 		MainUtils.getLevels();
 		
 		//現在のtopList
-		List<Map.Entry<String,Integer>> topList = MainUtils.topList;
+		HashMap<String, Integer> topList = MainUtils.topList;
 		
-		//過去のスコアを削除
-		for(Entry<String,Integer> list : pastTopList) {
-			board.resetScores("" + ChatColor.GREEN + ChatColor.BOLD + list.getKey());
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			Scoreboard board = player.getScoreboard();
+			Objective object = board.getObjective("Level Game");
+			
+			//過去のスコアを削除
+			for(String name : pastTopList.keySet()) {
+				board.resetScores("" + ChatColor.GREEN + ChatColor.BOLD + name);
+			}
+			
+			//新しいスコアを設定
+			for(String name : topList.keySet()) {
+				object.getScore("" + ChatColor.GREEN + ChatColor.BOLD + name).setScore(topList.get(name));
+			}
+			
+			if(topList.containsKey(player.getName())) {
+				board.resetScores("" + ChatColor.WHITE + "現在のスコア");
+			}else {
+				object.getScore("" + ChatColor.WHITE + "現在のスコア").setScore(player.getLevel());
+			}
+			
+			player.setScoreboard(board);
+		}
+	}
+	
+	//結果を表示
+	private static void showScores() {
+		HashMap<String, Integer> topList = MainUtils.topList;
+		
+		Bukkit.broadcastMessage(ChatColor.AQUA + "-----------------終了-----------------");
+		
+		for(int i=0; i<topList.keySet().size(); i++) {
+			String rank;
+			if(i == 0) rank = "" + ChatColor.GOLD + ChatColor.BOLD + 1 + "位 ";
+			else if(i == 1) rank = "" + ChatColor.GRAY + ChatColor.BOLD + 2 + "位 ";
+			else if(i == 2) rank = "" + ChatColor.YELLOW + ChatColor.BOLD + 3 + "位 ";
+			else rank = "" + ChatColor.WHITE + i;
+			
+			Bukkit.broadcastMessage(rank + ChatColor.RESET + topList.keySet().toArray()[i] + ChatColor.GREEN + " " + topList.get(topList.keySet().toArray()[i]) + "レベル");
 		}
 		
-		//新しいスコアを設定
-		for(Entry<String,Integer> list : topList) {
-			object.getScore("" + ChatColor.GREEN + ChatColor.BOLD + list.getKey()).setScore(list.getValue());
-		}
+		Bukkit.broadcastMessage(ChatColor.AQUA + "--------------------------------------");
 	}
 }

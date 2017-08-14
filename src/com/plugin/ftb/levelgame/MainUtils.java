@@ -7,16 +7,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class MainUtils {
 	
 	//プレイヤーごとの経験値リスト
 	public static HashMap<String, Integer> levelList = new HashMap<>();
 	//トップ10(降順)のプレイヤーリスト
-	public static List<Map.Entry<String,Integer>> topList = new ArrayList<>();
+	public static HashMap<String,Integer> topList = new HashMap<>();
 	
 	//経験値を取得し、ソートする
 	public static void getLevels() {
@@ -24,8 +26,11 @@ public class MainUtils {
 			levelList.put(player.getName(), player.getLevel());
 		}
 		
-		//降順でソート
-		topList = sort(levelList);
+		//降順でソートし、hashmapに代入
+		topList = new HashMap<>();
+		for(Entry<String,Integer> list : sort(levelList)) {
+			topList.put(list.getKey(), list.getValue());
+		}
 	}
 	
 	//valueに応じて降順でソート

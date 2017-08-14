@@ -21,7 +21,7 @@ public class MainScoreboard {
 	
 	public static Main plugin = Main.plugin;
 	
-	public static int min = 1;
+	public static int min = 50;
 	public static int sec = 0; 
 	
 	//ゲーム中=true, ゲーム外=false
@@ -67,7 +67,7 @@ public class MainScoreboard {
 	           		updateTime();
 	           	}
            }
-       }.runTaskTimer(plugin, 20, 1);
+       }.runTaskTimer(plugin, 20, 20);
 	}
 	
 	//スコアタスクを開始

@@ -10,9 +10,16 @@ public class Main extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		
+		//スコアボードを登録
 		MainScoreboard.registerScoreboard();
-		MainScoreboard.startTimerTask();
-		MainScoreboard.startScoreTask(1);
+		
+		//コマンドを登録
+		getCommand("levelgame").setExecutor(new LevelGameCommand());
+		//タブ補完登録
+		getCommand("levelgame").setTabCompleter(new MainTabCompleter());
+		
+		//イベントリスナを登録
+		getServer().getPluginManager().registerEvents(new MainListener(), this);
 	}
 }
 

@@ -1,3 +1,11 @@
 name: LevelGame
 main: com.plugin.ftb.levelgame.Main
 version: 0.1
+commands:
+  levelgame:
+    usage:  /<command>
+    permission: levelgame.command
+    
+permissions:
+  levelgame.command:
+    default: op

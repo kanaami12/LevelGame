@@ -10,9 +10,6 @@ public class Main extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		
-		//スコアボードを登録
-		MainScoreboard.registerScoreboard();
-		
 		//コマンドを登録
 		getCommand("levelgame").setExecutor(new LevelGameCommand());
 		//タブ補完登録

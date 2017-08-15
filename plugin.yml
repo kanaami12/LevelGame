@@ -1,6 +1,6 @@
 name: LevelGame
 main: com.plugin.ftb.levelgame.Main
-version: 0.1
+version: 1.0
 commands:
   levelgame:
     usage:  /<command>

@@ -24,22 +24,22 @@ public class LevelGameCommand implements CommandExecutor {
 		
 		Player player = (Player)sender;
 		
-		//引数が足りていない場合
-		if(args.length != 1) {
-			sendCommands(player);
-			return true;
-		}
-		
 		//startコマンドを実行
-		if(args[0].equalsIgnoreCase("start")) {
+		if(args.length == 2 && args[0].equalsIgnoreCase("start")) {
+			//時間を設定
+			MainScoreboard.min = Integer.parseInt(args[1]);
+			//スコアボードを登録
+			MainScoreboard.registerScoreboard();
+			//タイマータスクをスタート
 			MainScoreboard.startTimerTask();
+			//スコアタスクをスタート
 			MainScoreboard.startScoreTask(1);
 			Bukkit.broadcastMessage(prefix + ChatColor.BOLD + ChatColor.GREEN + "ゲームスタート！");
 			return true;
 		}
 		
 		//setNightVisionコマンドを実行
-		if(args[0].equalsIgnoreCase("setNightVisionMode")) {
+		if(args.length == 1 && args[0].equalsIgnoreCase("setNightVisionMode")) {
 			if(!isNightVisionMode) {
 				//エフェクトを付与
 				for(Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -65,7 +65,7 @@ public class LevelGameCommand implements CommandExecutor {
 	}
 
 	private void sendCommands(Player player) {
-		player.sendMessage(ChatColor.WHITE + "/levelgame" + ChatColor.RED + " start\n"
+		player.sendMessage(ChatColor.WHITE + "/levelgame" + ChatColor.RED + " start" + ChatColor.WHITE + " [分]\n"
 						 + ChatColor.WHITE + "/levelgame" + ChatColor.RED + " setNightVisionMode");
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,7 +19,7 @@ public class MainUtils {
 	//プレイヤーごとの経験値リスト
 	public static HashMap<String, Integer> levelList = new HashMap<>();
 	//トップ10(降順)のプレイヤーリスト
-	public static HashMap<String,Integer> topList = new HashMap<>();
+	public static LinkedHashMap<String,Integer> topList = new LinkedHashMap<>();
 	
 	//経験値を取得し、ソートする
 	public static void getLevels() {
@@ -27,7 +28,7 @@ public class MainUtils {
 		}
 		
 		//降順でソートし、hashmapに代入
-		topList = new HashMap<>();
+		topList = new LinkedHashMap<>();
 		for(Entry<String,Integer> list : sort(levelList)) {
 			topList.put(list.getKey(), list.getValue());
 		}

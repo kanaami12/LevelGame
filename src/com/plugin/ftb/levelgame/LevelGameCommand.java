@@ -60,12 +60,21 @@ public class LevelGameCommand implements CommandExecutor {
 			return true;
 		}
 		
+		//reloadコマンドを実行
+		if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+			//スコアボードをリロード
+			MainScoreboard.reloadScoreboard();
+			player.sendMessage(prefix + "スコアボードをリロードしました。");
+			return true;
+		}
+		
 		sendCommands(player);
 		return true;
 	}
 
 	private void sendCommands(Player player) {
 		player.sendMessage(ChatColor.WHITE + "/levelgame" + ChatColor.RED + " start" + ChatColor.WHITE + " [分]\n"
-						 + ChatColor.WHITE + "/levelgame" + ChatColor.RED + " setNightVisionMode");
+						 + ChatColor.WHITE + "/levelgame" + ChatColor.RED + " setNightVisionMode\n"
+						 + ChatColor.WHITE + "/levelgame" + ChatColor.RED + " reload\n");
 	}
 }

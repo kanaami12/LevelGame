@@ -57,6 +57,30 @@ public class MainScoreboard {
 		player.setScoreboard(board);
 	}
 	
+	//スコアボードをリロードする
+	public static void reloadScoreboard() {
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			Scoreboard board = player.getScoreboard();
+			Objective object = board.getObjective("Level_Game");
+			//スコアボードを削除
+			if(object != null) object.unregister();
+			
+			//新規オブジェクトを登録
+			object = board.registerNewObjective("Level_Game", "dummy");
+			
+			//オブジェクトの表示名を設定
+			object.setDisplayName("" + ChatColor.DARK_PURPLE + ChatColor.BOLD + "≫  Level Game ≪");
+			
+			//オブジェクトの表示位置を設定
+			object.setDisplaySlot(DisplaySlot.SIDEBAR);	
+			
+			//オブジェクトの登録
+			String zero = sec < 10 ? "0" : "";
+			object.getScore("" + ChatColor.RED + ChatColor.BOLD + "残り時間 " + ChatColor.RESET + String.format("%2d:" + zero + "%d", min, sec)).setScore(-1);
+			player.setScoreboard(board);
+		}
+	}
+	
 	//タイマーを開始
 	public static void startTimerTask() {
 		 new BukkitRunnable() {

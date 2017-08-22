@@ -16,7 +16,7 @@ public class MainTabCompleter implements TabCompleter {
 		if (sender instanceof Player && args.length == 1) {
 			if(label.equalsIgnoreCase("levelgame")){
 				tab.add("start");
-				tab.add("setNightVision");
+				tab.add("setNightVisionMode");
 				tab.add("reload");
 			}
 			return tab;//タブ補完

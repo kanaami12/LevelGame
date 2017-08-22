@@ -14,6 +14,7 @@ public class LevelGameCommand implements CommandExecutor {
 
 	private static String prefix = ChatColor.GRAY + "[LevelGame]" + ChatColor.RESET;
 	public static boolean isNightVisionMode = false;
+	private Main plugin = Main.plugin;
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -26,6 +27,7 @@ public class LevelGameCommand implements CommandExecutor {
 		
 		//startコマンドを実行
 		if(args.length == 2 && args[0].equalsIgnoreCase("start")) {
+			Bukkit.getScheduler().cancelAllTasks();
 			//時間を設定
 			MainScoreboard.min = Integer.parseInt(args[1]);
 			//スコアボードを登録
@@ -34,6 +36,13 @@ public class LevelGameCommand implements CommandExecutor {
 			MainScoreboard.startTimerTask();
 			//スコアタスクをスタート
 			MainScoreboard.startScoreTask(1);
+			
+			//0xpに
+			for(Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+				onlinePlayer.setExp(0);
+			}
+			Bukkit.getWorld("world").setTime(0L);
+			
 			Bukkit.broadcastMessage(prefix + ChatColor.BOLD + ChatColor.GREEN + "ゲームスタート！");
 			return true;
 		}

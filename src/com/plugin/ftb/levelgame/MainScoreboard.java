@@ -9,9 +9,13 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -24,6 +28,8 @@ public class MainScoreboard {
 	
 	public static int min = 10;
 	public static int sec = 0; 
+	//経過時間
+	public static int elapsedTime = 0;
 	
 	//ゲーム中=true, ゲーム外=false
 	public static boolean isPlaying = false;
@@ -91,6 +97,8 @@ public class MainScoreboard {
 	           		updateScore();
 	           		showScores();
 	           		isPlaying = false;
+	           		//ピースフルにする
+	           		Bukkit.getWorld("world").setDifficulty(Difficulty.PEACEFUL);
 	           		this.cancel();
 	           	}else {
 	           		isPlaying = true;
@@ -116,8 +124,18 @@ public class MainScoreboard {
 	private static void updateTime() {
 		int pastSec = sec;
 		int pastMin = min;
+		elapsedTime += 1;
 		sec = sec == 0  ? 59 : sec-1;
 		min = sec == 59 ? min-1 : min;
+		if(elapsedTime == 60) {
+			//1分後、夜にしてナイトビジョンにする
+			Bukkit.getWorld("world").setTime(16000);
+			//エフェクトを付与
+			for(Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+				onlinePlayer.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 10000000, 1000000));
+			}
+			LevelGameCommand.isNightVisionMode = true;
+		}
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			Scoreboard board = player.getScoreboard();
@@ -179,11 +197,17 @@ public class MainScoreboard {
 		
 		//10位まで表示
 		int rank = 1;
+		int sameRank = 0;
 		int pastLevel = -1;
 		for(String name : MainUtils.topList.keySet()) {
 			if(pastLevel != -1 && pastLevel != topList.get(name)) {
 				//前の人と同じレベルでないならrankを+1
 				rank += 1;
+				rank += sameRank;
+				sameRank = 0;
+			}if(pastLevel != -1 && pastLevel == topList.get(name)){
+				//同率人数をカウント
+				sameRank += 1;
 			}
 			String rankMessage;
 			if(rank == 1) rankMessage = "" + ChatColor.GOLD + ChatColor.BOLD + rank + "位 ";
